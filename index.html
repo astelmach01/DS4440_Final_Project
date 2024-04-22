@@ -80,11 +80,13 @@ encoder through shortcut connections.</p>
 </section>
 
 <section id="findings">
- <h1>4. Experimental Findings</h1>
- <h4>TODO: Add pictures of the model's colorizations.</h4>
- <h4>TODO: Add columns for the original paper's performance.</h4>
- <h5>&ensp;TODO: Claim that our performance is somehow comparable.</h5>
- <p>Our experiments yielded the following results:</p>
+<h1>4. Experimental Findings</h1>
+<p>Our experiments aimed to evaluate the performance of our implementation of the DDColor method on new datasets and with reduced training data. While we were unable to fully replicate the state-of-the-art results reported in the original paper due to resource constraints, our findings still provide valuable insights into the effectiveness and generalization capability of the method.</p>
+
+<p>In the original DDColor paper, the authors report impressive results on several benchmark datasets. On the ImageNet dataset, their DDColor-large model achieves an FID score of 3.92, a colorfulness score of 38.26, and a PSNR of 23.85. They also demonstrate strong performance on the COCO-Stuff and ADE20K datasets, with FID scores of 5.18 and 8.21, respectively.</p>
+
+<p>In comparison, our implementation, which utilizes a smaller backbone network (ConvNeXt-Tiny) and reduced training data, achieves the following results:</p>
+
 <table>
   <tr>
     <th>Checkpoint&nbsp;</th>
@@ -141,6 +143,12 @@ encoder through shortcut connections.</p>
     <td>44.707</td>
   </tr>
 </table>
+
+<p>While our FID scores are higher compared to the original paper, indicating a greater discrepancy between the distribution of our generated images and the real images, it is important to note that we used a significantly smaller model and training dataset. Despite these limitations, our model still manages to achieve reasonable colorfulness scores, suggesting that it is capable of producing vivid and diverse colors.</p>
+
+<p>Interestingly, our PSNR scores are notably higher than those reported in the original paper. However, it is worth mentioning that PSNR is a pixel-level metric that may not always align with human perception of image quality. The authors of the DDColor paper also acknowledge that pixel-level metrics may not fully reflect the actual colorization performance.</p>
+
+<p>Overall, while our results do not surpass the state-of-the-art performance reported in the original DDColor paper, they demonstrate that our implementation is able to learn meaningful colorization mappings even with reduced model capacity and training data. These findings suggest that the DDColor method has the potential to be adapted and optimized for resource-constrained scenarios, opening up possibilities for further research and application in real-world contexts.</p>
 </section>
 
 <section id="conclusion">
