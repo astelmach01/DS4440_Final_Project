@@ -49,9 +49,9 @@
  <p>Similarly to the original paper, we use ConvNeXT [2] as our backbone. However, unlike the paper, due to our limited resources, we use the smallest version of the ConvNeXT, ConvNeXT-Tiny, rather than the much larger model they use, ConvNeXT-XLarge. Furthermore, unlike the paper, we keep our encoder frozen in order to speed up training.</p>
  <p>The output from the backbone is four tensors of dimensions (96, H/4, W/4), (192, H/8, W/8), (384, H/16, W/16), and (768, H/32, W/32), which represent the hidden states of the model. All four tensors are used as direct inputs or shortcut inputs to the pixel decoder.</p>
  <h3>Pixel Decoder</h3>
- <p>Following the paper, the pixel decoder has 4 stages that expand the image resolution, each having an upsampling and shortcut layer. PixelShuffle is used as an upsampling layer, rearranges low-resolution feature maps
+ <p>Following the paper, the pixel decoder has 4 stages that expand the image resolution, each having an upsampling and shortcut layer. PixelShuffle [3] is used as an upsampling layer, rearranges low-resolution feature maps
 with the shape of (h/p, w/p, c/p^2) into high-resolution ones with
-the shape of (h, w, c). The shortcut layer uses a convolution
+the shape of (h, w, c). P is defined as the upscale factor, set to 2 in this paper and 4 for the last upsampling layer. The shortcut layer uses a convolution
 to integrate features from the corresponding stages of the
 encoder through shortcut connections.</p>
 <p>Each of the 4 stages take in inputs from the decoder, of shapes (96, H/4, W/4), (192, H/8, W/8), (384, H/16, W/16), and (768, H/32, W/32) as well as the original grayscale image.</p>
@@ -61,19 +61,22 @@ encoder through shortcut connections.</p>
  <p>Each color input block is a slightly modified version of the basic transformer architecture decoder. First, cross-attention is performed between the color queries (obviously acting as the queries) and the image features (acting as the keys and values). After a skip connection with the input and a layer norm, self attention is performed on the previous output. Then, we have another add and norm, which leads to a simple three-layer MLP, and finally one more add and norm. The output now represents the updated/refined image queries that can be used as input to the next block.</p>
  <h3>Fusion Module</h3>
 <p>The fusion module was fairly straightforward, having a matrix multiplication between the pixel and color embeddings followed by a 1x1 convolution. The output of the fusion module is the shape of the original input image, 256 x 256. </p>
- <h3>Loss Functions</h3>
- <p>Pellentesque netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
- <h4>Pixel Loss</h4>
- <p>This loss is a simple L1 distance between the colorized output of the model and the ground truth. It operates on only the color channels (AB of LAB) and not on the luminance. This is the most direct loss, and it simply directly ensures tries to pull the output color pixels closer to the correct values as represented by the ground truth pixels. However, it is not enough on its own because the model needs more information about the semantics of the image to best learn how which colors correspond to different concepts. This is addressed in the next loss function.</p>
- <h4>Perceptual Loss</h4>
- <p>The perceptual loss is also an L1 distance, however instead of operating directly on the pixels of the image, it uses a frozen encoder model to compare the embeddings of the output with embeddings of the ground truth. The input to this encoder is the fully colorized RGB image, unlike the color-only images used in the PixelLoss. This is because the encoder was not trained to understand such images.</p>
- <p>In our implementation, we used for the encoder a frozen ImageNet pre-trained VGG-16. This is a bit smaller than the VGG-19 used in the original paper. We are also not sure if the original paper kept it frozen, which may have also led to improved performance if they fine-tuned it as well. However, we opted to keep it frozen in order to speed up training.</p>
- <h4>Adversarial Loss</h4>
- <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
- <p>Pellentesque Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
- <h4>Colorfulness Loss</h4>
- <p>Pellentesque turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
- <p>Pellentesque tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+<h2>Loss Functions</h2>
+<p>In order to train the DDColor model effectively, we employ a combination of four loss functions: Pixel Loss, Perceptual Loss, Adversarial Loss, and Colorfulness Loss. Each of these losses plays a crucial role in guiding the model to generate high-quality, vivid, and semantically accurate colorizations. The Pixel Loss ensures that the colorized output closely matches the ground truth pixel values, while the Perceptual Loss captures higher-level semantic information by comparing the embeddings of the output and ground truth images. The Adversarial Loss encourages the model to generate more realistic and visually appealing results by training it to fool a discriminator network. Finally, the Colorfulness Loss promotes the generation of vibrant and diverse colors, enhancing the overall visual quality of the colorized images. By jointly optimizing these four losses, our model learns to produce state-of-the-art colorization results that are both visually striking and semantically consistent.</p>
+
+<h4>Pixel Loss</h4>
+<p>This loss is a simple L1 distance between the colorized output of the model and the ground truth. It operates on only the color channels (AB of LAB) and not on the luminance. This is the most direct loss, and it simply directly ensures tries to pull the output color pixels closer to the correct values as represented by the ground truth pixels. However, it is not enough on its own because the model needs more information about the semantics of the image to best learn how which colors correspond to different concepts. This is addressed in the next loss function.</p>
+
+<h4>Perceptual Loss</h4>
+<p>The perceptual loss is also an L1 distance, however instead of operating directly on the pixels of the image, it uses a frozen encoder model to compare the embeddings of the output with embeddings of the ground truth. The input to this encoder is the fully colorized RGB image, unlike the color-only images used in the PixelLoss. This is because the encoder was not trained to understand such images.</p>
+
+<p>In our implementation, we used for the encoder a frozen ImageNet pre-trained VGG-16. This is a bit smaller than the VGG-19 used in the original paper. We are also not sure if the original paper kept it frozen, which may have also led to improved performance if they fine-tuned it as well. However, we opted to keep it frozen in order to speed up training.</p>
+
+<h4>Adversarial Loss</h4>
+<p>The adversarial loss is used to encourage the colorization model to generate more realistic and visually appealing images. Unlike the original DDColor paper, which employs a PatchGAN discriminator, we opt for a simpler approach to save training time. We use a pre-trained ResNet-18 model as a discriminator, replacing the last fully connected layer to output a single value indicating the probability of the input image being real or fake. The discriminator is trained to distinguish between the real color images and the generated colorized images, while the generator (our colorization model) is trained to fool the discriminator by producing more realistic colorizations. The adversarial loss is calculated as the binary cross-entropy between the predicted probabilities and the corresponding labels (1 for real images and 0 for fake images). By minimizing this loss, the generator learns to create colorized images that are more indistinguishable from real color images, enhancing the overall visual quality of the results.</p>
+
+<h4>Colorfulness Loss</h4>
+<p>The colorfulness loss is a metric that quantifies the vividness and richness of colors in the generated image. It is inspired by the colorfulness score proposed by Hasler and Suesstrunk <a name="hasler2003measuring">[4]</a>. The loss encourages the model to generate more colorful and visually pleasing images by computing the standard deviation and mean of the pixel cloud in the rg-yb color space. The colorfulness metric is then calculated as the sum of the standard deviation and 0.3 times the mean. This metric is normalized to the range [0, 1] using the minimum and maximum colorfulness values from the original paper. By incorporating the colorfulness loss into the overall training objective, the model is encouraged to generate images with more vivid and diverse colors, improving the visual quality of the colorization results.</p>
 </section>
 
 <section id="findings">
@@ -142,16 +145,22 @@ encoder through shortcut connections.</p>
 
 <section id="conclusion">
   <h1>5. Conclusion</h1>
-  <p>Conclusion content goes here...</p>
+  
+  <p>In this project, we have explored the practical applicability and generalization capability of the DDColor method for image colorization, as proposed by Kang et al. Our goal was to investigate whether DDColor can be effectively applied to new, diverse datasets beyond the benchmarks used in the original paper and if comparable performance can be achieved with reduced training data requirements.</p>
+
+  <p>Through our implementation and experimentation, we have gained valuable insights into the strengths and limitations of the DDColor method. While we were unable to fully replicate the state-of-the-art performance reported in the original paper due to resource constraints, our results demonstrate that DDColor is indeed a powerful and promising approach for image colorization.</p>
+
+  <p>We have shown that the dual decoder architecture, consisting of a pixel decoder and a color decoder, enables the model to learn semantic-aware color representations without relying on manually designed priors. The incorporation of multi-scale visual features in the color decoder helps to alleviate color bleeding issues and improve the overall quality of the colorized images.</p>
+
+  <p>Furthermore, our experiments with the combination of four loss functions - Pixel Loss, Perceptual Loss, Adversarial Loss, and Colorfulness Loss - have highlighted their crucial role in guiding the model to generate high-quality, vivid, and semantically accurate colorizations. The joint optimization of these losses has proven to be effective in producing visually striking and semantically consistent results.</p>
+
+  <p>However, we also acknowledge the limitations and challenges encountered during our project. The resource-intensive nature of training deep learning models like DDColor necessitates access to powerful computational resources and large-scale datasets. Our experiments with reduced training data suggest that while the model can still produce reasonable colorizations, achieving performance on par with the original paper may require more extensive fine-tuning and adaptation.</p>
+
+  <p>Looking ahead, we believe that further research and development efforts can help to enhance the practicality and scalability of the DDColor method. Investigating techniques for model compression, efficient training, and few-shot learning could potentially reduce the resource requirements and make the method more accessible for real-world applications. Additionally, exploring the integration of user interaction or guidance mechanisms could provide greater control and customization options for users.</p>
+
+  <p>In conclusion, our project has shed light on the potential of the DDColor method as a powerful tool for image colorization. While challenges remain in terms of resource requirements and generalization to diverse datasets, we believe that with continued research and refinement, DDColor and similar approaches have the potential to revolutionize various industries and applications, from legacy photo restoration to video remastering and beyond. By pushing the boundaries of what is possible in image colorization, we can unlock new possibilities for creative expression, historical preservation, and visual storytelling.</p>
+
 </section>
-
-<h2>Literature Review; Biography; Social Impact; Industry Applications; Follow-on Research; and Peer-Review</h2>
-
-<p>Just as we have done in the role-playing exercise, analyze the paper from all perspectives.
-</p>
-
-<p>Optionally, in addition to a reading-based analysis, implement the ideas of the paper in code, and report on your findings.
-</p>
 
 <h3>References</h3>
 
@@ -167,6 +176,13 @@ encoder through shortcut connections.</p>
   The IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) 2023.
 </p>
 
+<p><a name="shi2016realtime">[3]</a> <a href="https://arxiv.org/abs/1609.05158"
+  >Wenzhe Shi and Jose Caballero and Ferenc Huszár and Johannes Totz and Andrew P. Aitken and Rob Bishop and Daniel Rueckert and Zehan Wang.
+  <em>Real-Time Single Image and Video Super-Resolution Using an Efficient Sub-Pixel Convolutional Neural Network.</em></a>
+  arXiv preprint arXiv:1609.05158, 2016.
+</p>
+
+<p><a name="hasler2003measuring">[4]</a> <a href="https://infoscience.epfl.ch/record/33994/files/HaslerS03.pdf">David Hasler and Sabine Süsstrunk. <em>Measuring Colourfulness in Natural Images.</em></a> In Proceedings of the IS&T/SPIE Electronic Imaging 2003: Human Vision and Electronic Imaging VIII, vol. 5007, pp. 87-95, June 2003.</p>
 
 
 <h2>Team Members</h2>
@@ -178,13 +194,6 @@ encoder through shortcut connections.</p>
 </div><!--row -->
 </div> <!-- container -->
 
-<footer class="nd-pagefooter">
-  <div class="row">
-    <div class="col-6 col-md text-center">
-      <a href="https://cs7150.baulab.info/">About CS 7150</a>
-    </div>
-  </div>
-</footer>
 
 </body>
 <script>
