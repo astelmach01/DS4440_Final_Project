@@ -151,6 +151,15 @@ encoder through shortcut connections.</p>
 <p>Interestingly, our PSNR scores are notably higher than those reported in the original paper. However, it is worth mentioning that PSNR is a pixel-level metric that may not always align with human perception of image quality. The authors of the DDColor paper also acknowledge that pixel-level metrics may not fully reflect the actual colorization performance.</p>
 
 <p>While our results do not surpass the state-of-the-art performance reported in the original DDColor paper, they demonstrate that our implementation is able to learn meaningful colorization mappings even with reduced model capacity and training data. These findings suggest that DDColor has the potential to be adapted and optimized for resource-constrained scenarios, opening up possibilities for further research and application in real-world contexts.</p>
+
+ <p>In figure 2, we also share our loss curve at the time of writing this report, which clearly demonstrates that our model is steadily learning and did not reach convergence. Therefore, though we used a simplified version of the paper's model, we believe that with enough training, our model could attain more comparable results.</p>
+ <img src="loss.png" alt="loss curve" style="
+    max-width: 50vw;
+    margin-left: auto;
+    display: block;
+    margin-right: auto;
+">
+ <figcaption style="text-align: center;">Figure 2: The most recent loss curve of our model. One point is logged at each epoch.</figcaption>
  <h2>Qualitative Results</h2>
 
  <p>To give an idea of the qualitative performance of our model, we chose five random (non cherry-picked) images from our validation set to be colorized by our model. In the figure below, the top row represents the ground truth, i.e., the original images. The second row is the input to the model, which is simply the grayscale version of the image. Finally, the third row is the colorized output from the model, which is the AB channel predicted concatenated with the original L channel.</p>
@@ -160,7 +169,7 @@ encoder through shortcut connections.</p>
     display: block;
     margin-right: auto;
 ">
- <figcaption style="text-align: center;">Figure 2: The ground truth images, grayscale inputs to the model, and model outputs, respectively.</figcaption>
+ <figcaption style="text-align: center;">Figure 3: The ground truth images, grayscale inputs to the model, and model outputs, respectively.</figcaption>
  <br>
  <p>The first three images were the model's biggest success. For the first one, the model was able to identify based on the only clue in the image, the shark and fish, that the image should be blue. For the second two, the model was also able to successfully identify that these images, predominantly featuring some form of outdoor nature, should be colored mostly green. We speculate that a large amount of the model's training data included these types of images, which led to the model learning to pick up on the correct color of things like grass and trees relatively quickly.</p>
  <p>The last two images were harder for the model. We theorize that due to our choice in using a much smaller encoder than the original paper and keeping it frozen, the model did not have enough capacity to easily identify objects in the image and link them to their correct colors. Unlike the general greenery of nature, these are much more specific and unlikely to have been featured much in the dataset. Our training did not come close to convergence, and at the time of taking these samples, our loss curve is still steadily going down. Therefore, we believe that with time, the model may have begun to pick up on these concepts.</p>
