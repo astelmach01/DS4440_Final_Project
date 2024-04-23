@@ -154,7 +154,12 @@ encoder through shortcut connections.</p>
  <h2>Qualitative Results</h2>
 
  <p>To give an idea of the qualitative performance of our model, we chose five random (non cherry-picked) images from our validation set to be colorized by our model. In the figure below, the top row represents the ground truth, i.e., the original images. The second row is the input to the model, which is simply the grayscale version of the image. Finally, the third row is the colorized output from the model, which is the AB channel predicted concatenated with the original L channel.</p>
- <img src="samples.png" alt="sample images"/>
+ <img src="samples.png" alt="sample images" style="
+    max-width: 60vw;
+    margin-left: auto;
+    display: block;
+    margin-right: auto;
+">
  <p>The first three images were the model's biggest success. For the first one, the model was able to identify based on the only clue in the image, the shark and fish, that the image should be blue. For the second two, the model was also able to successfully identify that these images, predominantly featuring some form of outdoor nature, should be colored mostly green. We speculate that a large amount of the model's training data included these types of images, which led to the model learning to pick up on the correct color of things like grass and trees relatively quickly.</p>
  <p>The last two images were harder for the model. We theorize that due to our choice in using a much smaller encoder than the original paper and keeping it frozen, the model did not have enough capacity to easily identify objects in the image and link them to their correct colors. Unlike the general greenery of nature, these are much more specific and unlikely to have been featured much in the dataset. Our training did not come close to convergence, and at the time of taking these samples, our loss curve is still steadily going down. Therefore, we believe that with time, the model may have begun to pick up on these concepts.</p>
  <p>Nevertheless, based on the light yellow tint in the corn image, we think that the model may have been on the right track, even though it did not yet learn to only color the actual corn yellow.</p>
