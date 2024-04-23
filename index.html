@@ -81,6 +81,7 @@ encoder through shortcut connections.</p>
 
 <section id="findings">
 <h1>4. Experimental Findings</h1>
+ We discuss our findings both from a quantitative view, comparing our numbers with those of the original paper, as well as a qualitative view, sampling a few examples from the model and discussing its strengths and weaknesses.
  <h2>Quantitative Results</h2>
 <p>Our experiments aimed to evaluate the performance of our implementation of DDColor on new datasets and with reduced training data. While we were unable to fully replicate the state-of-the-art results reported in the original paper due to resource constraints, our findings still provide valuable insights into the effectiveness and generalization capability of the method.</p>
 
@@ -150,15 +151,14 @@ encoder through shortcut connections.</p>
 <p>Interestingly, our PSNR scores are notably higher than those reported in the original paper. However, it is worth mentioning that PSNR is a pixel-level metric that may not always align with human perception of image quality. The authors of the DDColor paper also acknowledge that pixel-level metrics may not fully reflect the actual colorization performance.</p>
 
 <p>While our results do not surpass the state-of-the-art performance reported in the original DDColor paper, they demonstrate that our implementation is able to learn meaningful colorization mappings even with reduced model capacity and training data. These findings suggest that DDColor has the potential to be adapted and optimized for resource-constrained scenarios, opening up possibilities for further research and application in real-world contexts.</p>
-
  <h2>Qualitative Results</h2>
 
  <p>To give an idea of the qualitative performance of our model, we chose 3 random (non cherry-picked) images to be colorized by our model.</p>
  <p>First, we present the model's greatest strenth and success:</p>
- <img alt="success images"/>
+ <img src="good.png" alt="success images"/>
  <p>The model was able to successfully identify that these images, predominantly featuring some form of nature, should be colored mostly green. We speculate that a large amount of the model's training data included these types of images, which led to the model learning to pick up on the correct color of things like grass and trees relatively quickly.</p>
  <p>Now, we present some of the model's failures:</p>
- <img alt="failure images"/>
+ <img src="bad.png" alt="failure images"/>
  <p>Here, we can see that the model could not learn to color water blue. Based on the image, the model's only clues that this image should have been blue were the shark and fish in the image. We theorize that due to our choice in using a much smaller encoder than the original paper and keeping it frozen, the model did not have enough capacity to easily identify the fish and link them to blue bodies of water. The same goes for the other images, which are, unlike the general greenery of nature, much more specific and unlikely to have been featured mcuh in the dataset. Our training did not come close to convergence, and at the time of taking these samples, our loss curve is still steadily going down. Therefore, we believe that with time, the model may have begun to pick up on these concepts.</p>
 
 </section>
